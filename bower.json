@@ -1,0 +1,24 @@
+{
+  "name": "requirejs-tmpl",
+  "version": "0.1.0",
+  "homepage": "https://github.com/modulejs/requirejs-tmpl",
+  "authors": [
+    "yuanyan <yuanyan.cao@gmail.com>"
+  ],
+  "description": "requirejs template plugin",
+  "main": "tmpl.js",
+  "keywords": [
+    "requirejs",
+    "AMD",
+    "template"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "demo"
+  ]
+}

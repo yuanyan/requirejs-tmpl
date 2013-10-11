@@ -3,6 +3,14 @@ requirejs-tmpl
 
 RequireJS loader plugin for templates
 
+## Installation
+
+Via Bower:
+
+```sh
+bower install requirejs-tmpl
+```
+
 ## Usage
 
 The tmpl.js plugin will automatically be loaded if the templ! prefix is used for a dependency. Download the plugin and put
@@ -188,4 +196,4 @@ Requirejs tmpl plugin inspired by [text plugin](https://github.com/requirejs/tex
 
 Templating inspired by [underscore.template](http://underscorejs.org/#template)
 
-MIT.
+MIT License.
