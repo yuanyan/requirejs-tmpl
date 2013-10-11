@@ -1,13 +1,7 @@
 // requirejs-tmpl plugin inspired by https://github.com/requirejs/text
 // templating inspired by http://underscorejs.org/#template
-// Note: do not forget config stubModules: ['tmpl'] in modjs
-//  compile:{
-//    source: "main.js",
-//    dest: "./dist/js/find.js",
-//    baseUrl: "./js",
-//    stubModules: ['tmpl'],
-//    miniLoader: true
-//  }
+// MIT.
+
 define(['module'], function (module) {
 
     'use strict';
@@ -42,7 +36,7 @@ define(['module'], function (module) {
     };
 
     var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
-    var escapeFunctionSource = "var escape=function(s){return s.replace(/[<>\"\'/]/g,function(m){return {'<':'&lt;','>': '&gt;','\"': '&quot;','\'': '&#x27;','/': '&#x2F;'}[m]})};\n";
+    var defaultEscape = function(s){return s.replace(/[<>\"\'/]/g,function(m){return {'<':'&lt;','>': '&gt;','\"': '&quot;','\'': '&#x27;','/': '&#x2F;'}[m]})};
 
     // template include cache
     var partials = {};
@@ -79,7 +73,7 @@ define(['module'], function (module) {
             if (escape) {
                 // $.escape
                 hasEscape = true;
-                source += "'+\n((__t=(" + escape + "))==null?'':escape(__t))+\n'";
+                source += "'+\n((__t=(" + escape + "))==null?'':__e(__t))+\n'";
             }
             if (interpolate) {
                 source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
@@ -98,7 +92,7 @@ define(['module'], function (module) {
 
         source = "var __t,__p='',__j=Array.prototype.join," +
             "print=function(){__p+=__j.call(arguments,'');};\n" +
-            hasEscape? (settings.escaper? escapeFunctionSource: "var escape=" + settings.escaper + ";\n"): '' +
+            (hasEscape? ("var __e=" + (settings.escaper? settings.escaper: defaultEscape) + ";\n"): '') +
             source + "return __p;\n";
 
         try {
@@ -127,10 +121,26 @@ define(['module'], function (module) {
         defaultProtocol = hasLocation && location.protocol && location.protocol.replace(/\:/, ''),
         defaultHostName = hasLocation && location.hostname,
         defaultPort = hasLocation && (location.port || undefined),
-        buildMap = {};
+        templateStore = {},
+        DOT_RE = /\/\.\//g,
+        DOUBLE_DOT_RE = /\/[^/]+\/\.\.\//,
+        DOUBLE_SLASH_RE = /([^:/])\/\//g;
+        
+    // Inspried by https://github.com/seajs/seajs/blob/master/src/util-path.js
+    function normalize(path) {
+        // /a/b/./c/./d ==> /a/b/c/d
+        path = path.replace(DOT_RE, "/")
+        // a/b/c/../../d  ==>  a/b/../d  ==>  a/d
+        while (path.match(DOUBLE_DOT_RE)) {
+            path = path.replace(DOUBLE_DOT_RE, "/")
+        }
+        // a//b/c  ==>  a/b/c
+        path = path.replace(DOUBLE_SLASH_RE, "$1/")
+        return path
+    }
 
     tmpl = {
-        version: '1.1.0',
+        version: '1.2.0',
 
         createXhr: masterConfig.createXhr || function () {
             //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
@@ -224,7 +234,7 @@ define(['module'], function (module) {
         finishLoad: function (name, content, onLoad) {
 
             var precompile = templating(content);
-            buildMap[name] = precompile.source;
+            templateStore[name] = precompile.source;
             onLoad(precompile);
         },
 
@@ -234,9 +244,9 @@ define(['module'], function (module) {
             masterConfig.isBuild = config.isBuild;
 
             var parsed = tmpl.parseName(name),
-                nonStripName = parsed.moduleName +
+                parsedName = parsed.moduleName +
                     (parsed.ext ? '.' + parsed.ext : ''),
-                url = require.toUrl(nonStripName),
+                url = require.toUrl(parsedName),
                 useXhr = (masterConfig.useXhr) ||
                          tmpl.useXhr;
 
@@ -250,13 +260,22 @@ define(['module'], function (module) {
                         // TODO: throw error when include empty 
                         originIncludes.push(include);
                         // includes.push('tmpl!' + require.toUrl(include) );
-                        includes.push('tmpl!' + include );
+
+                        if(name.split('/')[0]){
+                            // Extract the directory portion of a path
+                            // "a/b/c.js?t=123#xx/zz" ==> "a/b/"
+                            // ref: http://jsperf.com/regex-vs-split/2
+                            var dirname = name.match(/[^?#]*\//)[0];
+                            include = normalize(dirname + include);
+                        }
+
+                        includes.push( 'tmpl!' + include );
                     }
 
                     if(includes[0]){
                         require(includes, function(){
                             for(var i= 0,l=includes.length; i<l; i++){
-                                partials[originIncludes[i]] = buildMap[originIncludes[i]];
+                                partials[originIncludes[i]] = templateStore[includes[i].slice(5)];
                             }
                             tmpl.finishLoad(name, content, onLoad);
                         });
@@ -274,7 +293,7 @@ define(['module'], function (module) {
                 //the resource has been optimized into a JS module. Fetch
                 //by the module name + extension, but do not include the
                 //!strip part to avoid file system issues.
-                require([nonStripName], function (content) {
+                require([parsedName], function (content) {
                     tmpl.finishLoad(parsed.moduleName + '.' + parsed.ext,
                                     content, onLoad);
                 });
@@ -283,8 +302,8 @@ define(['module'], function (module) {
 
         // for r.js
         write: function (pluginName, moduleName, write, config) {
-            if (buildMap.hasOwnProperty(moduleName)) {
-                var source = buildMap[moduleName];
+            if (templateStore.hasOwnProperty(moduleName)) {
+                var source = templateStore[moduleName];
                 write.asModule(pluginName + "!" + moduleName,
                                "define(function () { return " +
                                    source +
@@ -295,7 +314,7 @@ define(['module'], function (module) {
         writeFile: function (pluginName, moduleName, req, write, config) {
             var parsed = tmpl.parseName(moduleName),
                 extPart = parsed.ext ? '.' + parsed.ext : '',
-                nonStripName = parsed.moduleName + extPart,
+                parsedName = parsed.moduleName + extPart,
                 // Use a '.js' file name so that it indicates it is a
                 // script that can be loaded across domains.
                 fileName = req.toUrl(parsed.moduleName + extPart) + '.js';
@@ -303,7 +322,7 @@ define(['module'], function (module) {
             // Leverage own load() method to load plugin value, but only
             // write out values that do not have the strip argument,
             // to avoid any potential issues with ! in file names.
-            tmpl.load(nonStripName, req, function (value) {
+            tmpl.load(parsedName, req, function (value) {
                 // Use own write() method to construct full module value.
                 // But need to create shell that translates writeFile's
                 // write() to the right interface.
@@ -314,7 +333,7 @@ define(['module'], function (module) {
                     return write.asModule(moduleName, fileName, contents);
                 };
 
-                tmpl.write(pluginName, nonStripName, textWrite, config);
+                tmpl.write(pluginName, parsedName, textWrite, config);
             }, config);
         }
     };
@@ -378,6 +397,10 @@ define(['module'], function (module) {
                         errback(err);
                     } else {
                         callback(xhr.responseText);
+                    }
+                    
+                    if (masterConfig.onXhrComplete) {
+                        masterConfig.onXhrComplete(xhr, url);
                     }
                 }
             };

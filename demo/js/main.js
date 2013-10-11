@@ -1,12 +1,12 @@
 require.config({
     baseUrl: '.',
     paths : {
-        jquery: 'http://code.jquery.com/jquery-1.10.2',
+        jquery: 'http://pub.idqqimg.com/lib/jquery/latest/jquery',
         tmpl: '../tmpl'
     }   
 })
     
-require(['jquery', 'tmpl!tmpl/frame.html'],function($, frameTpl){
+require(['jquery', 'tmpl!./template/frame.html'],function($, frameTpl){
 
     $(document).ready(function(){
         var pagebody = $("#pagebody");
@@ -72,7 +72,9 @@ require(['jquery', 'tmpl!tmpl/frame.html'],function($, frameTpl){
             content.html(imgloader);
             
             
-            setTimeout(function() { content.html( frameTpl({title:title, content: text}) ) }, 500);
+            setTimeout(function() { 
+                content.html( frameTpl({title:title, content: text}) ) 
+            }, 500);
         });
     });
 
