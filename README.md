@@ -74,7 +74,7 @@ browsers that support CORS will be used. In that case you can use the
 (requires RequireJS 2+) to override some of the basic logic the plugin uses to
 determine if the .js file should be requested:
 
-```javascript
+```js
 requirejs.config({
     config: {
         tmpl: {
@@ -100,7 +100,7 @@ There may be cases where you might want to provide the XHR object to use
 in the request, or you may just want to add some custom headers to the
 XHR object used to make the request. You can use the following hooks:
 
-```javascript
+```js
 requirejs.config({
     config: {
         tmpl: {
@@ -129,7 +129,7 @@ requirejs.config({
 By default, tmpl plugin uses ERB-style template delimiters, change the
 following template settings to use alternative delimiters.
 
-```javascript
+```js
 requirejs.config({
     config: {
         tmpl: {
@@ -150,7 +150,7 @@ an escape regex to match expressions that should be inserted after being HTML es
 and an evaluate regex to match expressions that should be evaluated without insertion into the resulting string. 
 You may define or omit any combination of the three. For example, to perform [Mustache.js](http://github.com/janl/mustache.js#readme) style templating:
 
-```javascript
+```js
 requirejs.config({
     config: {
         tmpl: {
@@ -164,23 +164,28 @@ requirejs.config({
 
 ### Mod.js Compile
 
-Note: do not forget config stubModules: ['tmpl'] in modjs
-
 ```js
 // Modfile
-module.
-compile:{
-	source: "main.js",
-	dest: "./dist/js/find.js",
-	baseUrl: "./js",
-	stubModules: ['tmpl'],
-	miniLoader: true
+module.exports = {
+    tasks: {
+        compile:{
+            loader: "requirejs"
+            source: "path/to/main.js",
+            dest: "path/to/dest.js",
+            baseUrl: "./js",
+            stubModules: ['tmpl'],
+            miniLoader: true
+        }
+    }
 }
 ```
+
+Note: do not forget config stubModules: ['tmpl'] in Modfile
 
 ## License
 
 Requirejs tmpl plugin inspired by [text plugin](https://github.com/requirejs/text)
+
 Templating inspired by [underscore.template](http://underscorejs.org/#template)
 
 MIT.
