@@ -395,7 +395,8 @@ define(['module'], function (module) {
                         err.xhr = xhr;
                         errback(err);
                     } else {
-                        callback(xhr.responseText);
+                        // safe removing whitespace and line endings using regexp
+                        callback(xhr.responseText.replace(/>\s+</g,"> <"));
                     }
 
                     if (masterConfig.onXhrComplete) {
