@@ -52,7 +52,7 @@ define(['module'], function (module) {
             (settings.escape || noMatch).source,
             (settings.interpolate || noMatch).source,
             // evaluate regexp should be last
-            (settings.evaluate || noMatch).source 
+            (settings.evaluate || noMatch).source
         ].join('|') + '|$', 'g');
 
         // Compile the template source, escaping string literals appropriately.
@@ -96,16 +96,15 @@ define(['module'], function (module) {
             source + "return __p;\n";
 
         try {
-            // _ change to $
-            render = new Function(settings.variable || 'obj', '$', source); 
+            render = new Function(settings.variable || 'obj', source);
         } catch (e) {
             e.source = source;
             throw e;
         }
 
-        if (data) return render(data, $);
+        if (data) return render(data);
         var template = function(data) {
-            return render.call(this, data, $);
+            return render.call(this, data);
         };
 
         // Provide the compiled function source as a convenience for precompilation.
@@ -125,7 +124,7 @@ define(['module'], function (module) {
         DOT_RE = /\/\.\//g,
         DOUBLE_DOT_RE = /\/[^/]+\/\.\.\//,
         DOUBLE_SLASH_RE = /([^:/])\/\//g;
-        
+
     // Inspried by https://github.com/seajs/seajs/blob/master/src/util-path.js
     function normalize(path) {
         // /a/b/./c/./d ==> /a/b/c/d
@@ -257,7 +256,7 @@ define(['module'], function (module) {
                     while ((matches = templateSettings.include.exec(content)) !== null){
                         // include name trim
                         var include =  matches[1].replace(/^\s+/, "").replace(/\s+$/, "");
-                        // TODO: throw error when include empty 
+                        // TODO: throw error when include empty
                         originIncludes.push(include);
                         // includes.push('tmpl!' + require.toUrl(include) );
 
@@ -353,10 +352,10 @@ define(['module'], function (module) {
             if (file.indexOf('\uFEFF') === 0) {
                 file = file.substring(1);
             }
-            
+
             // safe removing whitespace and line endings using regexp
             file = file.replace(/>\s+</g,"> <");
-            
+
             callback(file);
         };
 
@@ -398,7 +397,7 @@ define(['module'], function (module) {
                     } else {
                         callback(xhr.responseText);
                     }
-                    
+
                     if (masterConfig.onXhrComplete) {
                         masterConfig.onXhrComplete(xhr, url);
                     }
