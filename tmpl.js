@@ -65,7 +65,7 @@ define(['module'], function (module) {
 
             if (include) {
                 // default include format: <%@ header.html:context %>
-                var includes = include.trim().split(":");
+                var includes = include.replace(/^\s+/, "").replace(/\s+$/, "").split(":");
                 var context = includes[1] || '';
                 // partials must be ready before
                 source += "'+\n(" + partials[includes[0]] + ")("+ context +")+\n'";
@@ -109,7 +109,6 @@ define(['module'], function (module) {
 
         // Provide the compiled function source as a convenience for precompilation.
         template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
-
         return template;
     };
 
@@ -129,10 +128,6 @@ define(['module'], function (module) {
     function normalize(path) {
         // /a/b/./c/./d ==> /a/b/c/d
         path = path.replace(DOT_RE, "/")
-        // a/b/c/../../d  ==>  a/b/../d  ==>  a/d
-        while (path.match(DOUBLE_DOT_RE)) {
-            path = path.replace(DOUBLE_DOT_RE, "/")
-        }
         // a//b/c  ==>  a/b/c
         path = path.replace(DOUBLE_SLASH_RE, "$1/")
         return path
@@ -255,7 +250,7 @@ define(['module'], function (module) {
                     var matches, originIncludes = [], includes = [];
                     while ((matches = templateSettings.include.exec(content)) !== null){
                         // include name trim
-                        var include =  matches[1].replace(/^\s+/, "").replace(/\s+$/, "");
+                        var include =  matches[1].replace(/^\s+/, "").replace(/\s+$/, "").split(":")[0];
                         // TODO: throw error when include empty
                         originIncludes.push(include);
                         // includes.push('tmpl!' + require.toUrl(include) );
