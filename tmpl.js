@@ -1,6 +1,6 @@
-// requirejs-tmpl plugin inspired by https://github.com/requirejs/text
-// templating inspired by http://underscorejs.org/#template
-// MIT.
+// Requirejs-tmpl plugin inspired by https://github.com/requirejs/text
+// Templating inspired by http://underscorejs.org/#template
+// Yuanyan(yuanyan.cao@gmail.com) MIT. 
 
 define(['module'], function (module) {
 
@@ -38,7 +38,7 @@ define(['module'], function (module) {
     var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
     var defaultEscape = function(s){return s.replace(/[<>\"\'/]/g,function(m){return {'<':'&lt;','>': '&gt;','\"': '&quot;','\'': '&#x27;','/': '&#x2F;'}[m]})};
 
-    // template include cache
+    // Template include cache.
     var partials = {};
 
     var templating = function(text, data, settings) {
@@ -64,14 +64,13 @@ define(['module'], function (module) {
                 .replace(escaper, function(match) { return '\\' + escapes[match]; });
 
             if (include) {
-                // default include format: <%@ header.html:context %>
+                // Default include format is <%@ header.html:context %>
                 var includes = include.replace(/^\s+/, "").replace(/\s+$/, "").split(":");
                 var context = includes[1] || '';
-                // partials must be ready before
+                // Partials must be ready before
                 source += "'+\n(" + partials[includes[0]] + ")("+ context +")+\n'";
             }
             if (escape) {
-                // $.escape
                 hasEscape = true;
                 source += "'+\n((__t=(" + escape + "))==null?'':__e(__t))+\n'";
             }
@@ -124,7 +123,7 @@ define(['module'], function (module) {
         DOUBLE_DOT_RE = /\/[^/]+\/\.\.\//,
         DOUBLE_SLASH_RE = /([^:/])\/\//g;
 
-    // Inspried by https://github.com/seajs/seajs/blob/master/src/util-path.js
+    // Normalize method inspired by https://github.com/seajs/seajs/blob/master/src/util-path.js
     function normalize(path) {
         // /a/b/./c/./d ==> /a/b/c/d
         path = path.replace(DOT_RE, "/")
@@ -137,7 +136,7 @@ define(['module'], function (module) {
         version: '1.2.0',
 
         createXhr: masterConfig.createXhr || function () {
-            //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
+            // Would love to dump the ActiveX crap in here. Need IE 6 to die first.
             var xhr, i, progId;
             if (typeof XMLHttpRequest !== "undefined") {
                 return new XMLHttpRequest();
@@ -182,7 +181,7 @@ define(['module'], function (module) {
             temp = ext || modName;
             index = temp.indexOf("!");
             if (index !== -1) {
-                //Pull off the strip arg.
+                // Pull off the strip arg.
                 temp = temp.substring(0, index);
                 if (ext) {
                     ext = temp;
@@ -233,7 +232,7 @@ define(['module'], function (module) {
         },
 
         load: function (name, require, onLoad, config) {
-            //Name has format: some.module.html
+            // Name has format: some.module.html
 
             masterConfig.isBuild = config.isBuild;
 
@@ -283,10 +282,10 @@ define(['module'], function (module) {
                     }
                 });
             } else {
-                //Need to fetch the resource across domains. Assume
-                //the resource has been optimized into a JS module. Fetch
-                //by the module name + extension, but do not include the
-                //!strip part to avoid file system issues.
+                // Need to fetch the resource across domains. Assume
+                // the resource has been optimized into a JS module. Fetch
+                // by the module name + extension, but do not include the
+                // !strip part to avoid file system issues.
                 require([parsedName], function (content) {
                     tmpl.finishLoad(parsed.moduleName + '.' + parsed.ext,
                                     content, onLoad);
@@ -294,7 +293,7 @@ define(['module'], function (module) {
             }
         },
 
-        // for r.js
+        // For r.js
         write: function (pluginName, moduleName, write, config) {
             if (templateStore.hasOwnProperty(moduleName)) {
                 var source = templateStore[moduleName];
@@ -332,7 +331,7 @@ define(['module'], function (module) {
         }
     };
 
-    // node
+    // Node.js
     if (masterConfig.env === 'node' || (!masterConfig.env &&
             typeof process !== "undefined" &&
             process.versions &&
@@ -354,13 +353,13 @@ define(['module'], function (module) {
             callback(file);
         };
 
-    // browser
+    // Browser
     } else if (masterConfig.env === 'xhr' || (!masterConfig.env &&
             tmpl.createXhr())) {
         tmpl.get = function (url, callback, errback, headers) {
             var xhr = tmpl.createXhr(), header;
 
-            // default synchronous AJAX
+            // Default synchronous AJAX
             // var async = !!masterConfig.async;
             xhr.open('GET', url, true);
 
