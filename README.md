@@ -1,7 +1,7 @@
 requirejs-tmpl
 ==============
 
-Require.js plugin for templates, it's tooling not a library.
+Require.js plugin for templates, it's a tooling not a library.
 
 ## Fetures
 
