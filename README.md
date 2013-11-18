@@ -177,7 +177,7 @@ requirejs.config({
 });
 ```
 
-### Mod.js Compile
+### [Mod.js](https://github.com/modulejs/modjs) Compile
 
 ```js
 // Modfile
