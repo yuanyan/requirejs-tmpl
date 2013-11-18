@@ -1,7 +1,14 @@
 requirejs-tmpl
 ==============
 
-RequireJS loader plugin for templates
+Require.js plugin for templates, it's tooling not a library.
+
+## Fetures
+
+* Pre-compile templates with r.js, easy build
+* Templates are compiled into pure JavaScript, fast enough
+* Sub-templates, really usefull
+* Using ERB-style template delimiters default, easy custom
 
 ## Installation
 
